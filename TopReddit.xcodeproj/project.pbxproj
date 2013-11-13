@@ -22,6 +22,7 @@
 		ADACE4C8183418D700C7FF9E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ADACE4A7183418D700C7FF9E /* UIKit.framework */; };
 		ADACE4D0183418D700C7FF9E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ADACE4CE183418D700C7FF9E /* InfoPlist.strings */; };
 		ADACE4D2183418D700C7FF9E /* TopRedditTests.m in Sources */ = {isa = PBXBuildFile; fileRef = ADACE4D1183418D700C7FF9E /* TopRedditTests.m */; };
+		ADACE4DF183419FD00C7FF9E /* RedditParse.m in Sources */ = {isa = PBXBuildFile; fileRef = ADACE4DE183419FD00C7FF9E /* RedditParse.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +56,8 @@
 		ADACE4CD183418D700C7FF9E /* TopRedditTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TopRedditTests-Info.plist"; sourceTree = "<group>"; };
 		ADACE4CF183418D700C7FF9E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		ADACE4D1183418D700C7FF9E /* TopRedditTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TopRedditTests.m; sourceTree = "<group>"; };
+		ADACE4DD183419FD00C7FF9E /* RedditParse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RedditParse.h; path = Models/RedditParse.h; sourceTree = "<group>"; };
+		ADACE4DE183419FD00C7FF9E /* RedditParse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RedditParse.m; path = Models/RedditParse.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,12 +117,12 @@
 		ADACE4A9183418D700C7FF9E /* TopReddit */ = {
 			isa = PBXGroup;
 			children = (
+				ADACE4DC183419DB00C7FF9E /* Controllers */,
+				ADACE4DB183419D300C7FF9E /* Models */,
 				ADACE4B2183418D700C7FF9E /* AppDelegate.h */,
 				ADACE4B3183418D700C7FF9E /* AppDelegate.m */,
 				ADACE4B5183418D700C7FF9E /* Main_iPhone.storyboard */,
 				ADACE4B8183418D700C7FF9E /* Main_iPad.storyboard */,
-				ADACE4BB183418D700C7FF9E /* ViewController.h */,
-				ADACE4BC183418D700C7FF9E /* ViewController.m */,
 				ADACE4BE183418D700C7FF9E /* Images.xcassets */,
 				ADACE4AA183418D700C7FF9E /* Supporting Files */,
 			);
@@ -153,6 +156,24 @@
 				ADACE4CE183418D700C7FF9E /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		ADACE4DB183419D300C7FF9E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				ADACE4DD183419FD00C7FF9E /* RedditParse.h */,
+				ADACE4DE183419FD00C7FF9E /* RedditParse.m */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		ADACE4DC183419DB00C7FF9E /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				ADACE4BB183418D700C7FF9E /* ViewController.h */,
+				ADACE4BC183418D700C7FF9E /* ViewController.m */,
+			);
+			name = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -256,6 +277,7 @@
 				ADACE4BD183418D700C7FF9E /* ViewController.m in Sources */,
 				ADACE4B4183418D700C7FF9E /* AppDelegate.m in Sources */,
 				ADACE4B0183418D700C7FF9E /* main.m in Sources */,
+				ADACE4DF183419FD00C7FF9E /* RedditParse.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
