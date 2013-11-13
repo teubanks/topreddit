@@ -7,8 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RedditParse.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <RedditParseLoginProtocol, UIAlertViewDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *imageDisplay;
+@property (weak, nonatomic) IBOutlet UILabel *pictureTitle;
+@property (weak, nonatomic) IBOutlet UIButton *voteUpButton;
+@property (weak, nonatomic) IBOutlet UIButton *voteDownButton;
+
+@property (strong, nonatomic) RedditParse *redditAPIParser;
 
 @end
