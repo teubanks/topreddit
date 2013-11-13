@@ -17,7 +17,8 @@ extern NSString *kRedditPassword;
 @required
 -(void)didLogin;
 -(void)didReceiveError:(NSDictionary*)errorInfo;
-
+-(void)loadImage:(UIImage*)image;
+-(void)setImageTitle:(NSString*)imageTitle;
 @end
 
 @interface RedditParse : NSObject
@@ -25,7 +26,7 @@ extern NSString *kRedditPassword;
 @property (strong, nonatomic) NSOperationQueue *apiRequestQueue;
 @property (weak, nonatomic) id delegate;
 
--(UIImage*)firstImage;
+-(void)fetchImageData;
 -(void)upVote;
 -(void)downVote;
 

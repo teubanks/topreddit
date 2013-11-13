@@ -30,17 +30,30 @@
     // Dispose of any resources that can be recreated.
 }
 
--(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    NSLog(@"alerted");
-}
 // --------- RedditParseLoginProtocol methods --------- //
 -(void)didLogin {
-
+    [self.redditAPIParser fetchImageData];
 }
 
 -(void)didReceiveError:(NSDictionary *)errorInfo {
-    UIAlertView *loginErrorAlert = [[UIAlertView alloc] initWithTitle:@"Error Logging In" message:[errorInfo objectForKey:@"errorMessage"] delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
+    UIAlertView *loginErrorAlert = [[UIAlertView alloc] initWithTitle:@"Error Logging In" message:[errorInfo objectForKey:@"errorMessage"] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
     [self.view addSubview:loginErrorAlert];
     [loginErrorAlert show];
+}
+
+-(void)loadImage:(UIImage *)image {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.imageDisplay setImage:image];
+    });
+}
+
+-(void)setImageTitle:(NSString *)imageTitle {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSAttributedString *titleString = [[NSAttributedString alloc] initWithString:imageTitle attributes:@{NSFontAttributeName: [UIFont systemFontOfSize:17]}];
+        CGFloat width = 300.0f;
+        CGRect labelBounds = [titleString boundingRectWithSize:CGSizeMake(width, 10000) options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading context:nil];
+        [self.pictureTitle setBounds:labelBounds];
+        [self.pictureTitle setText:imageTitle];
+    });
 }
 @end

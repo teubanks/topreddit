@@ -50,11 +50,46 @@ NSString *kRedditPassword = @"singularity";
             [errorInfo setValue:[loginErrors objectAtIndex:1] forKey:@"errorMessage"];
             [errorInfo setValue:[loginErrors objectAtIndex:2] forKey:@"eckifino"];
             [self.delegate didReceiveError:errorInfo];
+            return;
         }
+        [self.delegate didLogin];
     }];
 }
 
--(UIImage *)firstImage {
+-(void)fetchImageData {
+    NSURL *funnyImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/r/funny", kRedditAPIURL]];
+    NSMutableURLRequest *fetchImagesRequest = [[NSMutableURLRequest alloc] initWithURL:funnyImagesURL];
+    [fetchImagesRequest setHTTPMethod:@"GET"];
+    [NSURLConnection sendAsynchronousRequest:fetchImagesRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+        NSError *jsonSerializationError = nil;
+        NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonSerializationError];
+        if(jsonSerializationError){
+            NSMutableDictionary *errorInfo = [[NSMutableDictionary alloc] init];
+            [errorInfo setValue:@"Unknown Response for Image Fetch" forKey:@"errorMessage"];
+            [self.delegate didReceiveError:errorInfo];
+            return;
+        }
 
+        responseDict = [responseDict objectForKey:@"data"];
+        NSArray *imagesArray = [responseDict objectForKey:@"children"];
+        [imagesArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            NSDictionary *childInfo = [obj objectForKey:@"data"];
+            if([[childInfo objectForKey:@"over_18"] boolValue] == YES){
+                return; // skip NSFW content, shouldn't be any in the funny subreddit; this is just in case
+            }
+
+            NSURL *imageURL = [NSURL URLWithString:[childInfo objectForKey:@"url"]];
+            if(![[imageURL pathExtension] isEqualToString:@"jpg"]){
+                return; // skip non jpg content
+            }
+
+            NSData *imageData = [NSData dataWithContentsOfURL:imageURL];
+            UIImage *fetchedImage = [UIImage imageWithData:imageData];
+            [self.delegate loadImage:fetchedImage];
+            [self.delegate setImageTitle:[childInfo objectForKey:@"title"]];
+            *stop = YES; // got our image. Let's end it
+        }];
+
+    }];
 }
 @end
