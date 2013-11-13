@@ -21,7 +21,7 @@
 
     _redditAPIParser = [[RedditParse alloc] init];
     _redditAPIParser.delegate = self;
-//    [_redditAPIParser loginWithUsername:kRedditUsername andPassword:kRedditPassword];
+    [_redditAPIParser loginWithUsername:kRedditUsername andPassword:kRedditPassword];
 }
 
 - (void)didReceiveMemoryWarning

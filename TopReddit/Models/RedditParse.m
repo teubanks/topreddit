@@ -24,6 +24,19 @@ NSString *kRedditPassword = @"singularity";
 }
 
 -(void)loginWithUsername:(NSString *)username andPassword:(NSString *)password {
+    // throw an error for now
+//    NSMutableDictionary *errorInfo = [[NSMutableDictionary alloc] init];
+//    [errorInfo setValue:@"OHTEHNOES" forKey:@"errorConstant"];
+//    [errorInfo setValue:@"oh teh noes" forKey:@"errorMessage"];
+//    [errorInfo setValue:@"idkman" forKey:@"eckifino"];
+//    [self.delegate didReceiveError:errorInfo];
+
+    [self.delegate didLogin];
+    NSLog(@"returning without logging in");
+    return;
+
+
+
     NSString *loginBodyString = [NSString stringWithFormat:@"api_type=json&rem=false&username=%@&passwd=%@", username, password];
     NSData *loginData = [loginBodyString dataUsingEncoding:NSUTF8StringEncoding];
     
@@ -31,17 +44,23 @@ NSString *kRedditPassword = @"singularity";
     NSURL *loginURL = [NSURL URLWithString:loginURLString];
     NSMutableURLRequest *mutableLoginRequest = [[NSMutableURLRequest alloc] initWithURL:loginURL];
     [mutableLoginRequest setHTTPMethod:@"POST"];
+    [mutableLoginRequest setValue:[NSString stringWithFormat:@"%d", [loginData length]] forHTTPHeaderField:@"Content-Length"];
+    [mutableLoginRequest setValue:@"application/x-www-form-urlencoded charset=utf-8" forHTTPHeaderField:@"Content-Type"];
     [mutableLoginRequest setHTTPBody:loginData];
-    
+
     [NSURLConnection sendAsynchronousRequest:mutableLoginRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-        if(connectionError)
+        if(connectionError){
             [self.delegate didReceiveError:[connectionError userInfo]];
+            return;
+        }
 
         NSError *error = nil;
         NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
         responseDictionary = [responseDictionary objectForKey:@"json"]; // remove json key, don't need it
-        if(error)
+        if(error){
             [self.delegate didReceiveError:[error userInfo]];
+            return;
+        }
 
         NSArray *loginErrors = [[responseDictionary objectForKey:@"errors"] objectAtIndex:0];
         if([loginErrors count] > 0) {
