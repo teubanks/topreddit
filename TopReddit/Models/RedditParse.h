@@ -12,6 +12,12 @@ extern const NSString *kRedditAPIURL;
 extern NSString *kRedditUsername;
 extern NSString *kRedditPassword;
 
+typedef enum {
+    kUnvote = -1,
+    kVoteUp,
+    kVoteDown
+} VoteDirection;
+
 @protocol RedditParseLoginProtocol <NSObject>
 
 @required
@@ -19,6 +25,7 @@ extern NSString *kRedditPassword;
 -(void)didReceiveError:(NSDictionary*)errorInfo;
 -(void)loadImage:(UIImage*)image;
 -(void)setImageTitle:(NSString*)imageTitle;
+-(void)setImageId:(NSString*)imageId;
 @end
 
 @interface RedditParse : NSObject
@@ -27,8 +34,8 @@ extern NSString *kRedditPassword;
 @property (weak, nonatomic) id delegate;
 
 -(void)fetchImageData;
--(void)upVote;
--(void)downVote;
+-(void)upVoteObjectWithId:(NSString*)objectID;
+-(void)downVoteObjectWithId:(NSString*)objectID;
 
 -(void)loginWithUsername:(NSString*)username andPassword:(NSString*)password;
 

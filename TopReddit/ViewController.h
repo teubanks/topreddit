@@ -16,5 +16,8 @@
 @property (weak, nonatomic) IBOutlet UIButton *voteDownButton;
 
 @property (strong, nonatomic) RedditParse *redditAPIParser;
+@property (strong, nonatomic) NSString *imageId;
 
+- (IBAction)voteUp:(id)sender;
+- (IBAction)voteDown:(id)sender;
 @end

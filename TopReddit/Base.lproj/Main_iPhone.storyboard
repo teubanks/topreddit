@@ -40,6 +40,9 @@
                                 <state key="normal" title="Vote Up">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="voteUp:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="TUl-ZM-GTN"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yNQ-eT-c4V">
                                 <rect key="frame" x="209" y="534" width="76" height="30"/>
@@ -47,6 +50,9 @@
                                 <state key="normal" title="Vote Down">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <connections>
+                                    <action selector="voteDown:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="eBn-wZ-7ap"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>

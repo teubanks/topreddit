@@ -56,4 +56,13 @@
         [self.pictureTitle setText:imageTitle];
     });
 }
+
+// --------- IB Actions ---------  //
+- (IBAction)voteUp:(id)sender {
+    [self.redditAPIParser downVoteObjectWithId:self.imageId];
+}
+
+- (IBAction)voteDown:(id)sender {
+    [self.redditAPIParser upVoteObjectWithId:self.imageId];
+}
 @end
