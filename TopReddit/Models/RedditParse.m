@@ -165,7 +165,7 @@ NSString *kRedditPassword = @"singularity";
     NSURL *loginURL = [NSURL URLWithString:loginURLString];
     NSMutableURLRequest *mutableLoginRequest = [[NSMutableURLRequest alloc] initWithURL:loginURL];
     [mutableLoginRequest setHTTPMethod:@"POST"];
-    [mutableLoginRequest setValue:[NSString stringWithFormat:@"%d", [bodyData length]] forHTTPHeaderField:@"Content-Length"];
+    [mutableLoginRequest setValue:[NSString stringWithFormat:@"%li", (long)[bodyData length]] forHTTPHeaderField:@"Content-Length"];
     [mutableLoginRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
     if(self.modhash)
         [mutableLoginRequest setValue:self.modhash forHTTPHeaderField:@"X-Modhash"];
