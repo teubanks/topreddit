@@ -418,6 +418,7 @@
 				GCC_PREFIX_HEADER = "TopReddit/TopReddit-Prefix.pch";
 				INFOPLIST_FILE = "TopReddit/TopReddit-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -431,6 +432,7 @@
 				GCC_PREFIX_HEADER = "TopReddit/TopReddit-Prefix.pch";
 				INFOPLIST_FILE = "TopReddit/TopReddit-Info.plist";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = 1;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -496,6 +498,7 @@
 				ADACE4D7183418D700C7FF9E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		ADACE4D8183418D700C7FF9E /* Build configuration list for PBXNativeTarget "TopRedditTests" */ = {
 			isa = XCConfigurationList;
@@ -504,6 +507,7 @@
 				ADACE4DA183418D700C7FF9E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

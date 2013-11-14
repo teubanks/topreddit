@@ -18,6 +18,8 @@
 @property (strong, nonatomic) RedditParse *redditAPIParser;
 @property (strong, nonatomic) NSString *imageId;
 
+@property (strong, nonatomic) UIActivityIndicatorView *loadingIndicator;
+
 - (IBAction)voteUp:(id)sender;
 - (IBAction)voteDown:(id)sender;
 @end

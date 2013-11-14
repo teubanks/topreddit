@@ -28,35 +28,27 @@ NSString *kRedditPassword = @"singularity";
 
 -(void)loginWithUsername:(NSString *)username andPassword:(NSString *)password {
     NSString *modHashFilePath = [NSTemporaryDirectory() stringByAppendingString:@"modhash.trh"];
-    if(![modHashFilePath length] == 0){
-        NSError *modHashReadError = nil;
-        _modhash = [NSString stringWithContentsOfFile:modHashFilePath encoding:NSUTF8StringEncoding error:&modHashReadError];
+    NSError *modHashReadError = nil;
+    _modhash = [NSString stringWithContentsOfFile:modHashFilePath encoding:NSUTF8StringEncoding error:&modHashReadError];
+    if([_modhash length] != 0){
         // we have a modhash. just return
         [self.delegate didLogin];
         return;
     }
 
-    return; // always return for now
+    NSString *loginBodyString = [NSString stringWithFormat:@"api_type=json&rem=on&user=%@&passwd=%@",
+                                            [username stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                                            [password stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
 
-    NSString *loginBodyString = [NSString stringWithFormat:@"api_type=json&rem=true&username=%@&passwd=%@", username, password];
     NSData *loginData = [loginBodyString dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSString *loginURLString = [NSString stringWithFormat:@"%@/api/login", kRedditAPIURL];
-    NSURL *loginURL = [NSURL URLWithString:loginURLString];
-    NSMutableURLRequest *mutableLoginRequest = [[NSMutableURLRequest alloc] initWithURL:loginURL];
-    [mutableLoginRequest setHTTPMethod:@"POST"];
-    [mutableLoginRequest setValue:[NSString stringWithFormat:@"%d", [loginData length]] forHTTPHeaderField:@"Content-Length"];
-    [mutableLoginRequest setValue:@"application/x-www-form-urlencoded charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-    [mutableLoginRequest setHTTPBody:loginData];
+    NSURLRequest *loginRequest = [self postURLRequestForEndpoint:@"login" withData:loginData];
 
-    [NSURLConnection sendAsynchronousRequest:mutableLoginRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+    [NSURLConnection sendAsynchronousRequest:loginRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if(connectionError){
             [self.delegate didReceiveError:[connectionError userInfo]];
             return;
         }
-
-        NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSLog(@"%@", responseString);
 
         NSError *error = nil;
         NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
@@ -66,15 +58,16 @@ NSString *kRedditPassword = @"singularity";
         }
 
         responseDictionary = [responseDictionary objectForKey:@"json"]; // remove json key, don't need it
-        NSArray *loginErrors = [[responseDictionary objectForKey:@"errors"] objectAtIndex:0];
-        if([loginErrors count] > 0) {
+        if([[responseDictionary objectForKey:@"errors"] count] > 0){
+            NSArray *loginErrors = [[responseDictionary objectForKey:@"errors"] objectAtIndex:0];
             NSMutableDictionary *errorInfo = [[NSMutableDictionary alloc] init];
             [errorInfo setValue:[loginErrors objectAtIndex:0] forKey:@"errorConstant"];
             [errorInfo setValue:[loginErrors objectAtIndex:1] forKey:@"errorMessage"];
-            [errorInfo setValue:[loginErrors objectAtIndex:2] forKey:@"eckifino"];
             [self.delegate didReceiveError:errorInfo];
             return;
         }
+
+        // Modhash is something used by Reddit to protect against CSRF
         _modhash = [[responseDictionary objectForKey:@"data"] objectForKey:@"modhash"];
         NSURL *tmpDirURL = [NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES];
         NSURL *fileURL = [[tmpDirURL URLByAppendingPathComponent:@"modhash"] URLByAppendingPathExtension:@"trh"];
@@ -85,7 +78,7 @@ NSString *kRedditPassword = @"singularity";
 }
 
 -(void)fetchImageData {
-    NSURL *funnyImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/r/funny", kRedditAPIURL]];
+    NSURL *funnyImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/r/funny.json", kRedditAPIURL]];
     NSMutableURLRequest *fetchImagesRequest = [[NSMutableURLRequest alloc] initWithURL:funnyImagesURL];
     [fetchImagesRequest setHTTPMethod:@"GET"];
     [NSURLConnection sendAsynchronousRequest:fetchImagesRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
@@ -115,7 +108,7 @@ NSString *kRedditPassword = @"singularity";
             UIImage *fetchedImage = [UIImage imageWithData:imageData];
             [self.delegate loadImage:fetchedImage];
             [self.delegate setImageTitle:[childInfo objectForKey:@"title"]];
-            [self.delegate setImageId:[childInfo objectForKey:@"id"]];
+            [self.delegate setImageId:[childInfo objectForKey:@"name"]];
             *stop = YES; // got our image. Let's end it
         }];
 
@@ -131,26 +124,16 @@ NSString *kRedditPassword = @"singularity";
 }
 
 -(void)castVote:(VoteDirection)voteDirection forObjectWithId:(NSString *)objectId {
-    NSString *loginBodyString = [NSString stringWithFormat:@"dir=%i&id=%@", voteDirection, objectId];
-    NSData *loginData = [loginBodyString dataUsingEncoding:NSUTF8StringEncoding];
-    
-    NSString *loginURLString = [NSString stringWithFormat:@"%@/api/vote", kRedditAPIURL];
-    NSURL *loginURL = [NSURL URLWithString:loginURLString];
-    NSMutableURLRequest *mutableLoginRequest = [[NSMutableURLRequest alloc] initWithURL:loginURL];
-    [mutableLoginRequest setHTTPMethod:@"POST"];
-    [mutableLoginRequest setValue:[NSString stringWithFormat:@"%d", [loginData length]] forHTTPHeaderField:@"Content-Length"];
-    [mutableLoginRequest setValue:@"application/x-www-form-urlencoded charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-    [mutableLoginRequest setValue:self.modhash forHTTPHeaderField:@"X-Modhash"];
-    [mutableLoginRequest setHTTPBody:loginData];
+    NSString *voteBodyString = [NSString stringWithFormat:@"api_type=json&dir=%i&id=%@", voteDirection, [objectId stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSData *voteData = [voteBodyString dataUsingEncoding:NSUTF8StringEncoding];
 
-    [NSURLConnection sendAsynchronousRequest:mutableLoginRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+    NSURLRequest *voteURLRequest = [self postURLRequestForEndpoint:@"vote" withData:voteData];
+
+    [NSURLConnection sendAsynchronousRequest:voteURLRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         if(connectionError){
             [self.delegate didReceiveError:[connectionError userInfo]];
             return;
         }
-
-        NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSLog(@"%@", responseString);
 
         NSError *error = nil;
         NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
@@ -159,16 +142,30 @@ NSString *kRedditPassword = @"singularity";
             return;
         }
 
-        responseDictionary = [responseDictionary objectForKey:@"json"]; // remove json key, don't need it
-        NSArray *loginErrors = [[responseDictionary objectForKey:@"errors"] objectAtIndex:0];
-        if([loginErrors count] > 0) {
+        responseDictionary = [responseDictionary objectForKey:@"json"];
+        NSArray *voteErrors = [[responseDictionary objectForKey:@"errors"] objectAtIndex:0];
+        if([voteErrors count] > 0) {
             NSMutableDictionary *errorInfo = [[NSMutableDictionary alloc] init];
-            [errorInfo setValue:[loginErrors objectAtIndex:0] forKey:@"errorConstant"];
-            [errorInfo setValue:[loginErrors objectAtIndex:1] forKey:@"errorMessage"];
-            [errorInfo setValue:[loginErrors objectAtIndex:2] forKey:@"eckifino"];
+            [errorInfo setValue:[voteErrors objectAtIndex:0] forKey:@"errorConstant"];
+            [errorInfo setValue:[voteErrors objectAtIndex:1] forKey:@"errorMessage"];
             [self.delegate didReceiveError:errorInfo];
             return;
         }
     }];
+}
+
+// Method to dry up url requests for post method
+-(NSURLRequest*)postURLRequestForEndpoint:(NSString*)endpoint withData:(NSData*)bodyData {
+    NSString *loginURLString = [NSString stringWithFormat:@"%@/api/%@", kRedditAPIURL, endpoint];
+    NSURL *loginURL = [NSURL URLWithString:loginURLString];
+    NSMutableURLRequest *mutableLoginRequest = [[NSMutableURLRequest alloc] initWithURL:loginURL];
+    [mutableLoginRequest setHTTPMethod:@"POST"];
+    [mutableLoginRequest setValue:[NSString stringWithFormat:@"%d", [bodyData length]] forHTTPHeaderField:@"Content-Length"];
+    [mutableLoginRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    if(self.modhash)
+        [mutableLoginRequest setValue:self.modhash forHTTPHeaderField:@"X-Modhash"];
+
+    [mutableLoginRequest setHTTPBody:bodyData];
+    return mutableLoginRequest;
 }
 @end

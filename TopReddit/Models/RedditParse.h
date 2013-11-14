@@ -13,9 +13,9 @@ extern NSString *kRedditUsername;
 extern NSString *kRedditPassword;
 
 typedef enum {
-    kUnvote = -1,
-    kVoteUp,
-    kVoteDown
+    kVoteDown = -1,
+    kUnvote,
+    kVoteUp
 } VoteDirection;
 
 @protocol RedditParseLoginProtocol <NSObject>

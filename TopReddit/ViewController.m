@@ -22,6 +22,11 @@
     _redditAPIParser = [[RedditParse alloc] init];
     _redditAPIParser.delegate = self;
     [_redditAPIParser loginWithUsername:kRedditUsername andPassword:kRedditPassword];
+
+    _loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    _loadingIndicator.center = self.view.center;
+    [_loadingIndicator startAnimating];
+    [self.view addSubview:_loadingIndicator];
 }
 
 - (void)didReceiveMemoryWarning
@@ -36,14 +41,19 @@
 }
 
 -(void)didReceiveError:(NSDictionary *)errorInfo {
-    UIAlertView *loginErrorAlert = [[UIAlertView alloc] initWithTitle:@"Error Logging In" message:[errorInfo objectForKey:@"errorMessage"] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    [self.view addSubview:loginErrorAlert];
-    [loginErrorAlert show];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIAlertView *loginErrorAlert = [[UIAlertView alloc] initWithTitle:@"Error Logging In" message:[errorInfo objectForKey:@"errorMessage"] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+        [self.view addSubview:loginErrorAlert];
+        [loginErrorAlert show];
+    });
 }
 
 -(void)loadImage:(UIImage *)image {
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.imageDisplay setImage:image];
+        [self.loadingIndicator removeFromSuperview];
+        [self.voteDownButton setEnabled:YES];
+        [self.voteUpButton setEnabled:YES];
     });
 }
 
@@ -58,11 +68,18 @@
 }
 
 // --------- IB Actions ---------  //
+// In a real world, these button backgrounds would be set after we recieve a 200 OK response
+// indicating that our up/down vote was successful. It'd also be set upon login, showing that
+// we've already voted one way or the other, but I'm out of time
 - (IBAction)voteUp:(id)sender {
-    [self.redditAPIParser downVoteObjectWithId:self.imageId];
+    [self.redditAPIParser upVoteObjectWithId:self.imageId];
+    [self.voteDownButton setBackgroundColor:[UIColor clearColor]];
+    [self.voteUpButton setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:1.0 alpha:0.25]];
 }
 
 - (IBAction)voteDown:(id)sender {
-    [self.redditAPIParser upVoteObjectWithId:self.imageId];
+    [self.redditAPIParser downVoteObjectWithId:self.imageId];
+    [self.voteUpButton setBackgroundColor:[UIColor clearColor]];
+    [self.voteDownButton setBackgroundColor:[UIColor colorWithRed:0 green:0 blue:1.0 alpha:0.25]];
 }
 @end
