@@ -9,8 +9,13 @@
 #import "RedditParse.h"
 
 const NSString *kRedditAPIURL = @"http://api.reddit.com";
+
+// Log into www.reddit.com using these credentials and navigate to the
+// /r/funny url to see the results of your up/down voting on
+// the website itself
 NSString *kRedditUsername = @"youmakemydaybrighter";
 NSString *kRedditPassword = @"singularity";
+
 @interface RedditParse()
 -(void)castVote:(VoteDirection)voteDirection forObjectWithId:(NSString*)objectId;
 @end
