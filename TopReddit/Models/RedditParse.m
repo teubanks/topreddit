@@ -11,7 +11,7 @@
 const NSString *kRedditAPIURL = @"http://api.reddit.com";
 
 // Log into www.reddit.com using these credentials and navigate to the
-// /r/funny url to see the results of your up/down voting on
+// /r/aww url to see the results of your up/down voting on
 // the website itself
 NSString *kRedditUsername = @"youmakemydaybrighter";
 NSString *kRedditPassword = @"singularity";
@@ -83,8 +83,8 @@ NSString *kRedditPassword = @"singularity";
 }
 
 -(void)fetchImageData {
-    NSURL *funnyImagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/r/funny.json", kRedditAPIURL]];
-    NSMutableURLRequest *fetchImagesRequest = [[NSMutableURLRequest alloc] initWithURL:funnyImagesURL];
+    NSURL *imagesURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@/r/aww.json", kRedditAPIURL]];
+    NSMutableURLRequest *fetchImagesRequest = [[NSMutableURLRequest alloc] initWithURL:imagesURL];
     [fetchImagesRequest setHTTPMethod:@"GET"];
     [NSURLConnection sendAsynchronousRequest:fetchImagesRequest queue:_apiRequestQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
         NSError *jsonSerializationError = nil;
@@ -101,7 +101,8 @@ NSString *kRedditPassword = @"singularity";
         [imagesArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             NSDictionary *childInfo = [obj objectForKey:@"data"];
             if([[childInfo objectForKey:@"over_18"] boolValue] == YES){
-                return; // skip NSFW content, shouldn't be any in the funny subreddit; this is just in case
+                // skip NSFW content, shouldn't be any in the aww subreddit (should be mostly kittens..); this is just in case
+                return;
             }
 
             NSURL *imageURL = [NSURL URLWithString:[childInfo objectForKey:@"url"]];
